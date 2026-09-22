@@ -2,11 +2,10 @@
 Django settings for config project.
 """
 
-from pathlib import Path
 from datetime import timedelta
-from decouple import config, Csv
+from pathlib import Path
 
-
+from decouple import Csv, config
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +32,6 @@ ALLOWED_HOSTS = config(
 
 
 
-
 INSTALLED_APPS = [
     # Django
     "django.contrib.admin",
@@ -46,10 +44,10 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
     "drf_spectacular",
-    "rest_framework_simplejwt.token_blacklist",
 
     # Local apps
     "accounts",
@@ -64,8 +62,10 @@ INSTALLED_APPS = [
 
 
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -81,7 +81,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 
 WSGI_APPLICATION = "config.wsgi.application"
-
 
 
 
@@ -103,17 +102,30 @@ TEMPLATES = [
 
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="localhost"),
-        "PORT": config("DB_PORT", default="5432"),
-    }
-}
 
+DATABASE_URL = config("DATABASE_URL", default="")
+
+if DATABASE_URL:
+    import dj_database_url
+
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME"),
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default="5432"),
+        }
+    }
 
 
 
@@ -145,7 +157,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
 AUTH_USER_MODEL = "accounts.User"
 
 
@@ -166,6 +177,9 @@ STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 
 
@@ -175,7 +189,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 
 
@@ -196,7 +212,7 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_ALL_ORIGINS = config(
     "CORS_ALLOW_ALL_ORIGINS",
-    default=True,
+    default=False,
     cast=bool,
 )
 
@@ -238,6 +254,7 @@ CSRF_TRUSTED_ORIGINS = config(
 
 
 
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -251,6 +268,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Documentation de l'API Kira Backend",
     "VERSION": "1.0.0",
 }
+
 
 
 
@@ -344,5 +362,3 @@ if USE_PROXY_SSL_HEADER:
         "HTTP_X_FORWARDED_PROTO",
         "https",
     )
-
-    
