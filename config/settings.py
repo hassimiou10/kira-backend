@@ -11,8 +11,6 @@ from decouple import Csv, config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-
-
 SECRET_KEY = config(
     "SECRET_KEY",
     default="django-insecure-change-this-key",
@@ -29,7 +27,6 @@ ALLOWED_HOSTS = config(
     default="localhost,127.0.0.1",
     cast=Csv(),
 )
-
 
 
 INSTALLED_APPS = [
@@ -61,8 +58,6 @@ INSTALLED_APPS = [
 ]
 
 
-
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -76,12 +71,9 @@ MIDDLEWARE = [
 ]
 
 
-
-
 ROOT_URLCONF = "config.urls"
 
 WSGI_APPLICATION = "config.wsgi.application"
-
 
 
 TEMPLATES = [
@@ -99,8 +91,6 @@ TEMPLATES = [
         },
     },
 ]
-
-
 
 
 DATABASE_URL = config("DATABASE_URL", default="")
@@ -126,7 +116,6 @@ else:
             "PORT": config("DB_PORT", default="5432"),
         }
     }
-
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -160,8 +149,6 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = "accounts.User"
 
 
-
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -169,8 +156,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
-
 
 
 STATIC_URL = "static/"
@@ -182,17 +167,12 @@ STATICFILES_STORAGE = (
 )
 
 
-
 MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
 
-
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
 
 
 REST_FRAMEWORK = {
@@ -207,6 +187,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
+
 
 
 
@@ -229,6 +210,13 @@ CORS_ALLOWED_ORIGINS = config(
     cast=Csv(),
 )
 
+# Flutter Web utilise souvent un port dynamique
+# comme localhost:56530, localhost:63308, etc.
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -244,15 +232,11 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
-
-
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
     default="",
     cast=Csv(),
 )
-
-
 
 
 SIMPLE_JWT = {
@@ -261,15 +245,11 @@ SIMPLE_JWT = {
 }
 
 
-
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "Kira Backend API",
     "DESCRIPTION": "Documentation de l'API Kira Backend",
     "VERSION": "1.0.0",
 }
-
-
 
 
 OPENAI_API_KEY = config(
@@ -288,8 +268,6 @@ AI_MODEL_DEFAULT = config(
 )
 
 
-
-
 STRIPE_SECRET_KEY = config(
     "STRIPE_SECRET_KEY",
     default="",
@@ -306,13 +284,10 @@ STRIPE_WEBHOOK_SECRET = config(
 )
 
 
-
-
 CV_PDF_BACKEND = config(
     "CV_PDF_BACKEND",
     default="reportlab",
 )
-
 
 
 SECURE_SSL_REDIRECT = config(
