@@ -11,6 +11,7 @@ from decouple import Csv, config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 SECRET_KEY = config(
     "SECRET_KEY",
     default="django-insecure-change-this-key",
@@ -29,6 +30,7 @@ ALLOWED_HOSTS = config(
 )
 
 
+
 INSTALLED_APPS = [
     # Django
     "django.contrib.admin",
@@ -37,6 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # Cloudinary
+    "cloudinary",
+    "cloudinary_storage",
 
     # Third-party
     "rest_framework",
@@ -58,6 +64,7 @@ INSTALLED_APPS = [
 ]
 
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -76,6 +83,7 @@ ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
 
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -91,6 +99,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 
 DATABASE_URL = config("DATABASE_URL", default="")
@@ -116,6 +125,7 @@ else:
             "PORT": config("DB_PORT", default="5432"),
         }
     }
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -146,7 +156,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
 AUTH_USER_MODEL = "accounts.User"
+
+
 
 
 LANGUAGE_CODE = "en-us"
@@ -158,6 +171,7 @@ USE_I18N = True
 USE_TZ = True
 
 
+
 STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -167,12 +181,22 @@ STATICFILES_STORAGE = (
 )
 
 
-MEDIA_URL = "/media/"
+CLOUDINARY_URL = config(
+    "CLOUDINARY_URL",
+    default="",
+)
 
-MEDIA_ROOT = BASE_DIR / "media"
+# Les fichiers ImageField/FileField seront stockés sur Cloudinary
+# au lieu du disque local de Render.
+DEFAULT_FILE_STORAGE = (
+    "cloudinary_storage.storage.MediaCloudinaryStorage"
+)
+
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
 
 
 REST_FRAMEWORK = {
@@ -187,7 +211,6 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-
 
 
 
@@ -232,11 +255,13 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
+
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
     default="",
     cast=Csv(),
 )
+
 
 
 SIMPLE_JWT = {
@@ -245,11 +270,13 @@ SIMPLE_JWT = {
 }
 
 
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Kira Backend API",
     "DESCRIPTION": "Documentation de l'API Kira Backend",
     "VERSION": "1.0.0",
 }
+
 
 
 OPENAI_API_KEY = config(
@@ -268,6 +295,7 @@ AI_MODEL_DEFAULT = config(
 )
 
 
+
 STRIPE_SECRET_KEY = config(
     "STRIPE_SECRET_KEY",
     default="",
@@ -284,11 +312,17 @@ STRIPE_WEBHOOK_SECRET = config(
 )
 
 
+
+
 CV_PDF_BACKEND = config(
     "CV_PDF_BACKEND",
     default="reportlab",
 )
 
+
+# ============================================================
+# SECURITY / HTTPS
+# ============================================================
 
 SECURE_SSL_REDIRECT = config(
     "SECURE_SSL_REDIRECT",
@@ -337,3 +371,41 @@ if USE_PROXY_SSL_HEADER:
         "HTTP_X_FORWARDED_PROTO",
         "https",
     )
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
