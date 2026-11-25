@@ -320,9 +320,6 @@ CV_PDF_BACKEND = config(
 )
 
 
-# ============================================================
-# SECURITY / HTTPS
-# ============================================================
 
 SECURE_SSL_REDIRECT = config(
     "SECURE_SSL_REDIRECT",
@@ -403,6 +400,23 @@ LOGGING = {
             "propagate": False,
         },
         "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {"handlers": ["console"], "level": "INFO"},
+    "loggers": {
+        "django.request": {
             "handlers": ["console"],
             "level": "ERROR",
             "propagate": False,
